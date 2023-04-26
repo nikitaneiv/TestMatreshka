@@ -1,79 +1,95 @@
 using System;
-
 using UnityEngine;
-
 using CookingPrototype.Kitchen;
 using CookingPrototype.UI;
-
 using JetBrains.Annotations;
 
-namespace CookingPrototype.Controllers {
-	public sealed class GameplayController : MonoBehaviour {
+namespace CookingPrototype.Controllers 
+{
+	public sealed class GameplayController : MonoBehaviour 
+	{
 		public static GameplayController Instance { get; private set; }
 
-		public GameObject TapBlock   = null;
-		public WinWindow  WinWindow  = null;
+		public GameObject TapBlock = null;
+		public WinWindow WinWindow = null;
 		public LoseWindow LoseWindow = null;
 
 
 		int _ordersTarget = 0;
 
-		public int OrdersTarget {
+		public int OrdersTarget 
+		{
 			get { return _ordersTarget; }
-			set {
+			set 
+			{
 				_ordersTarget = value;
 				TotalOrdersServedChanged?.Invoke();
 			}
 		}
 
-		public int        TotalOrdersServed { get; private set; } = 0;
+		public int TotalOrdersServed { get; private set; } = 0;
 
 		public event Action TotalOrdersServedChanged;
 
-		void Awake() {
-			if ( Instance != null ) {
+		void Awake() 
+		{
+			if ( Instance != null ) 
+			{
 				Debug.LogError("Another instance of GameplayController already exists");
 			}
+
 			Instance = this;
 		}
 
-		void OnDestroy() {
-			if ( Instance == this ) {
+		void OnDestroy() 
+		{
+			if ( Instance == this ) 
+			{
 				Instance = null;
 			}
 		}
 
-		void Init() {
+		void Init() 
+		{
 			TotalOrdersServed = 0;
 			Time.timeScale = 1f;
 			TotalOrdersServedChanged?.Invoke();
 		}
 
-		public void CheckGameFinish() {
-			if ( CustomersController.Instance.IsComplete ) {
-				EndGame(TotalOrdersServed >= OrdersTarget);
+		public void CheckGameFinish() 
+		{
+			if ( CustomersController.Instance.IsComplete ) 
+			{
+				EndGame(TotalOrdersServed >= OrdersTarget - 2);
 			}
 		}
 
-		void EndGame(bool win) {
+		void EndGame(bool win) 
+		{
 			Time.timeScale = 0f;
 			TapBlock?.SetActive(true);
-			if ( win ) {
+			if ( win ) 
+			{
 				WinWindow.Show();
-			} else {
+			}
+			else 
+			{
 				LoseWindow.Show();
 			}
 		}
 
-		void HideWindows() {
+		void HideWindows() 
+		{
 			TapBlock?.SetActive(false);
 			WinWindow?.Hide();
 			LoseWindow?.Hide();
 		}
 
 		[UsedImplicitly]
-		public bool TryServeOrder(Order order) {
-			if ( !CustomersController.Instance.ServeOrder(order) ) {
+		public bool TryServeOrder(Order order) 
+		{
+			if ( !CustomersController.Instance.ServeOrder(order) ) 
+			{
 				return false;
 			}
 
@@ -83,17 +99,20 @@ namespace CookingPrototype.Controllers {
 			return true;
 		}
 
-		public void Restart() {
+		public void Restart() 
+		{
 			Init();
 			CustomersController.Instance.Init();
 			HideWindows();
 
-			foreach ( var place in FindObjectsOfType<AbstractFoodPlace>() ) {
+			foreach ( var place in FindObjectsOfType<AbstractFoodPlace>() ) 
+			{
 				place.FreePlace();
 			}
 		}
 
-		public void CloseGame() {
+		public void CloseGame() 
+		{
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.isPlaying = false;
 #else

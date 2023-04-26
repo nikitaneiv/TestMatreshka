@@ -1,27 +1,37 @@
-using System;
-
 using UnityEngine;
-
 using JetBrains.Annotations;
+using UnityEngine.EventSystems;
 
-namespace CookingPrototype.Kitchen {
+namespace CookingPrototype.Kitchen 
+{
 	[RequireComponent(typeof(FoodPlace))]
-	public sealed class FoodTrasher : MonoBehaviour {
-
+	public sealed class FoodTrasher : MonoBehaviour, IPointerClickHandler 
+	{
 		FoodPlace _place = null;
-		float     _timer = 0f;
+		float _timer = 0f;
 
-		void Start() {
+		void Start() 
+		{
 			_place = GetComponent<FoodPlace>();
 			_timer = Time.realtimeSinceStartup;
 		}
 
-		/// <summary>
-		/// Освобождает место по двойному тапу если еда на этом месте сгоревшая.
-		/// </summary>
 		[UsedImplicitly]
-		public void TryTrashFood() {
-			throw new NotImplementedException("TryTrashFood: this feature is not implemented");
+		public void TryTrashFood() // Освобождает место по двойному тапу если еда на этом месте сгоревшая.
+		{
+			var food = _place.CurFood.CurStatus;
+			if ( food == Food.FoodStatus.Overcooked ) 
+			{
+				_place.Free();
+			}
+		}
+
+		public void OnPointerClick(PointerEventData eventData) 
+		{
+			if ( eventData.clickCount == 2 ) 
+			{
+				TryTrashFood();
+			}
 		}
 	}
 }
